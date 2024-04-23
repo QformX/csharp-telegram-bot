@@ -8,7 +8,7 @@ namespace WeatherHandler
 
         public WeatherHandler() 
         {
-            string path = "..\\..\\..\\..\\BotHandler\\encrypted.bin";
+            string path = "..\\..\\..\\..\\WeatherHandler\\encrypted.bin";
             var token = new Tokenizer(path).Token();
         }
     }

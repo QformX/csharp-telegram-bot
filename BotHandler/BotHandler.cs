@@ -1,5 +1,4 @@
 ﻿using Telegram.Bot;
-using System;
 using TokenHandler;
 
 namespace BotHandler;

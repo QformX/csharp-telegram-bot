@@ -1,6 +1,4 @@
-﻿using BotHandler;
-
-namespace BotApplication
+﻿namespace BotApplication
 {
     internal class Program
     {
