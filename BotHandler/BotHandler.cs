@@ -12,6 +12,7 @@ namespace BotHandler;
 
 public class BotHandler
 {
+    private bool _callback = false;
     public BotHandler() { }
     public async void Start()
     {
@@ -38,12 +39,12 @@ public class BotHandler
     {
         await (update.Type switch
         {
-            UpdateType.CallbackQuery => HandleCallbackQueryUpdateAsync(botClient, update.CallbackQuery, cancellationToken),
-            UpdateType.Message => HandleWeatherMessageAsync(botClient, update, cancellationToken)
+            UpdateType.CallbackQuery => HandleCallbackQueryUpdateAsync(botClient, update, cancellationToken),
+            UpdateType.Message => HandleMessageBridge(botClient, update, cancellationToken)
         });
     }
 
-    private static async Task HandleWeatherMessageAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    private async Task HandleWeatherMessageAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         if (update.Message is not { } message)
             return;
@@ -53,12 +54,19 @@ public class BotHandler
 
         InlineKeyboardMarkup inlineKeyboard = new(new[]
 {
-            // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData(text: "Описать одежду", callbackData: ""),
+                InlineKeyboardButton.WithCallbackData(text: "Описать одежду", callbackData: "аа"),
             }
         });
+
+        ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
+        {
+            new KeyboardButton[] { "Help me", "Call me ☎️" },
+        })
+        {
+            ResizeKeyboard = true
+        };
 
         var chatId = message.Chat.Id;
         Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
@@ -84,9 +92,64 @@ public class BotHandler
         }
     }
 
-    async Task HandleCallbackQueryUpdateAsync(ITelegramBotClient botClient, CallbackQuery update, CancellationToken cancellationToken)
+    async Task HandleCallbackQueryUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
+        if (update.CallbackQuery is not { } query)
+            return;
+
+        if (query.Id is not { } queryId)
+            return;
+
+        _callback = !_callback;
+
+        await botClient.AnswerCallbackQueryAsync(queryId, text: "callback recieved");
         Console.WriteLine("Callback");
+    }
+
+    private async Task HandleMessageBridge(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    {
+        if (!_callback)
+        {
+            await HandleWeatherMessageAsync(botClient, update, cancellationToken);
+        }
+        else
+        {
+            await HandleClothesAddAsync(botClient, update, cancellationToken);
+            _callback = !_callback;
+        }
+    }
+
+    private async Task HandleClothesAddAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    {
+        if (update.Message is not { } message)
+            return;
+
+        if (message.Text is not { } messageText)
+            return;
+
+        var chatId = message.Chat.Id;
+        Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
+
+        var cur_city = messageText;
+        var handler = new WeatherHandler.WeatherHandler($"{cur_city}");
+        try
+        {
+
+            Message sentMessage = await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: "Ответ получен",
+            cancellationToken: cancellationToken);
+        }
+        catch (Exception e)
+        {
+            var exceptionHandler = new ExceptionHandler(botClient, chatId, cancellationToken, e);
+            Message sentMessage = await exceptionHandler.Handle();
+        }
+    }
+
+    private void ChangeCallback()
+    {
+        _callback = !_callback;
     }
 
     async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
