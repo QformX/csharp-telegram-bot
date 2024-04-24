@@ -4,6 +4,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using TokenHandler;
 using WeatherHandler;
 
@@ -41,6 +42,15 @@ public class BotHandler
         if (message.Text is not { } messageText)
             return;
 
+        InlineKeyboardMarkup inlineKeyboard = new(new[]
+{
+            // first row
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData(text: "Описать свою одежду", callbackData: "Хочу описать свою одежду"),
+            }
+        });
+
         var chatId = message.Chat.Id;
         Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
@@ -51,9 +61,11 @@ public class BotHandler
         {
             var forecast = handler.GetForecast();
             forecastmessage = forecast.BuildMessage();
-            Message sentMessage = await botClient.SendTextMessageAsync(
+            Message sentMessage = await botClient.SendPhotoAsync(
             chatId: chatId,
-            text: forecastmessage,
+            photo: InputFile.FromUri("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg"),
+            caption: forecastmessage,
+            replyMarkup: inlineKeyboard,
             cancellationToken: cancellationToken);
         } catch ( Exception e ) 
         {
