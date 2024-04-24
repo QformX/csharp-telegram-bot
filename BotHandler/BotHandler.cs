@@ -10,6 +10,7 @@ namespace BotHandler;
 
 public class BotHandler
 {
+    private UserHandler _userHandler = new UserHandler();
     private bool _callback = false;
     public BotHandler() { }
     public void Start()
@@ -99,7 +100,12 @@ public class BotHandler
         if (query.Id is not { } queryId)
             return;
 
-        _callback = !_callback;
+        var humanID = update.CallbackQuery.From.Id;
+        Console.WriteLine(humanID);
+
+        //_callback = !_callback;
+
+        _userHandler.Callback(humanID);
 
         await botClient.AnswerCallbackQueryAsync(queryId, text: "callback recieved");
         Console.WriteLine("Callback");
@@ -107,7 +113,20 @@ public class BotHandler
 
     private async Task HandleMessageBridge(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if (!_callback)
+        if (update.Message is not { } message)
+            return;
+
+        if (message.Text is not { } messageText)
+            return;
+
+        var userId = message.Chat.Id;
+
+        if (!_userHandler.UserExist(userId))
+        {
+            _userHandler.Add(userId);
+        }
+
+        if (!_userHandler.IsUserCallback(userId))
         {
             await HandleWeatherMessageAsync(botClient, update, cancellationToken);
         }
@@ -115,7 +134,7 @@ public class BotHandler
         {
             using CancellationTokenSource cts = new(3000);
             await HandleClothesAddAsync(botClient, update, cts.Token);
-            _callback = !_callback;
+            _userHandler.Callback(userId);
         }
     }
 
