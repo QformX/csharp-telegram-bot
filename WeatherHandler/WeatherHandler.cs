@@ -25,11 +25,15 @@ namespace WeatherHandler
 
             Weather? weather = JsonConvert.DeserializeObject<Weather>(json);
 
-            if ( weather != null )
+            if (weather != null )
             {
-                return weather;
+                if (weather.location == null & weather.current == null)
+                {
+                    throw new Exception("Указанного места не существует!");
+                }
+                else return weather;
             }
-            else return new Weather();
+            return new EmptyWeather();
         }
     }
 }
