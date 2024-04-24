@@ -4,7 +4,8 @@
     {
         static void Main(string[] args)
         {
-            BotHandler.BotHandler.Start();
+            var bot = new BotHandler.BotHandler();
+            bot.Start();
             Console.ReadKey();
         }
     }
