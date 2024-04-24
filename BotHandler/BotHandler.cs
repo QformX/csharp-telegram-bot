@@ -27,7 +27,7 @@ public class BotHandler
 
         botClient.StartReceiving(
             updateHandler: HandleUpdateAsync,
-            pollingErrorHandler: HandlePollingErrorAsync,
+            pollingErrorHandler: HandleErrorAsync,
             receiverOptions: receiverOptions,
             cancellationToken: cts.Token
         );
@@ -46,25 +46,27 @@ public class BotHandler
 
         var cur_city = messageText;
         var handler = new WeatherHandler.WeatherHandler($"{cur_city}");
-        var forecast = handler.GetForecast();
-        var forecastmessage = forecast.BuildMessage();
-
-        Message sentMessage = await botClient.SendTextMessageAsync(
+        var forecastmessage = "";
+        try
+        {
+            var forecast = handler.GetForecast();
+            forecastmessage = forecast.BuildMessage();
+            Message sentMessage = await botClient.SendTextMessageAsync(
             chatId: chatId,
             text: forecastmessage,
             cancellationToken: cancellationToken);
+        } catch ( Exception e ) 
+        {
+            var exceptionHandler = new ExceptionHandler(botClient, chatId, cancellationToken, e);
+            Message sentMessage = await exceptionHandler.Handle();
+        }
     }
 
-    Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+    async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
-        var ErrorMessage = exception switch
+        if (exception is ApiRequestException apiRequestException)
         {
-            ApiRequestException apiRequestException
-                => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
-            _ => exception.ToString()
-        };
-
-        Console.WriteLine(ErrorMessage);
-        return Task.CompletedTask;
+            Console.WriteLine(exception.Message);
+        }
     }
 }
