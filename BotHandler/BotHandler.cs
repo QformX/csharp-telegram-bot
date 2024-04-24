@@ -14,7 +14,7 @@ public class BotHandler
 {
     private bool _callback = false;
     public BotHandler() { }
-    public async void Start()
+    public void Start()
     {
         string path = "..\\..\\..\\..\\BotHandler\\encrypted.bin";
         var token = new Tokenizer(path).Token();
@@ -145,11 +145,6 @@ public class BotHandler
             var exceptionHandler = new ExceptionHandler(botClient, chatId, cancellationToken, e);
             Message sentMessage = await exceptionHandler.Handle();
         }
-    }
-
-    private void ChangeCallback()
-    {
-        _callback = !_callback;
     }
 
     async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
