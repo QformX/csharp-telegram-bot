@@ -36,6 +36,15 @@ public class BotHandler
 
     async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
+        await (update.Type switch
+        {
+            UpdateType.CallbackQuery => HandleCallbackQueryUpdateAsync(botClient, update.CallbackQuery, cancellationToken),
+            UpdateType.Message => HandleWeatherMessageAsync(botClient, update, cancellationToken)
+        });
+    }
+
+    private static async Task HandleWeatherMessageAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    {
         if (update.Message is not { } message)
             return;
 
@@ -47,7 +56,7 @@ public class BotHandler
             // first row
             new []
             {
-                InlineKeyboardButton.WithCallbackData(text: "Описать свою одежду", callbackData: "Хочу описать свою одежду"),
+                InlineKeyboardButton.WithCallbackData(text: "Описать одежду", callbackData: ""),
             }
         });
 
@@ -56,22 +65,28 @@ public class BotHandler
 
         var cur_city = messageText;
         var handler = new WeatherHandler.WeatherHandler($"{cur_city}");
-        var forecastmessage = "";
         try
         {
             var forecast = handler.GetForecast();
-            forecastmessage = forecast.BuildMessage();
+            var forecastmessage = forecast.BuildMessage();
+
             Message sentMessage = await botClient.SendPhotoAsync(
             chatId: chatId,
             photo: InputFile.FromUri("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg"),
             caption: forecastmessage,
             replyMarkup: inlineKeyboard,
             cancellationToken: cancellationToken);
-        } catch ( Exception e ) 
+        }
+        catch (Exception e)
         {
             var exceptionHandler = new ExceptionHandler(botClient, chatId, cancellationToken, e);
             Message sentMessage = await exceptionHandler.Handle();
         }
+    }
+
+    async Task HandleCallbackQueryUpdateAsync(ITelegramBotClient botClient, CallbackQuery update, CancellationToken cancellationToken)
+    {
+        Console.WriteLine("Callback");
     }
 
     async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
