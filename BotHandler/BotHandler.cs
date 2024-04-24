@@ -42,9 +42,9 @@ public class BotHandler
             return;
 
         var chatId = message.Chat.Id;
-
         Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
-        var cur_city = "омск";
+
+        var cur_city = messageText;
         var handler = new WeatherHandler.WeatherHandler($"{cur_city}");
         var forecast = handler.GetForecast();
         var forecastmessage = forecast.BuildMessage();
