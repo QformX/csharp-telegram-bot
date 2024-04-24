@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using SQLDatabase;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -11,10 +12,12 @@ namespace BotHandler;
 public class BotHandler
 {
     private UserHandler _userHandler = new UserHandler();
-    private bool _callback = false;
+    private SQLHandler sql = new SQLHandler();
     public BotHandler() { }
     public void Start()
     {
+        sql.IniInitialize();
+
         string path = "..\\..\\..\\..\\BotHandler\\encrypted.bin";
         var token = new Tokenizer(path).Token();
         var botClient = new TelegramBotClient(token);
@@ -43,6 +46,7 @@ public class BotHandler
         });
     }
 
+    // Здесь необходимо получить информацию о погоде
     private async Task HandleWeatherMessageAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         if (update.Message is not { } message)
@@ -103,8 +107,6 @@ public class BotHandler
         var humanID = update.CallbackQuery.From.Id;
         Console.WriteLine(humanID);
 
-        //_callback = !_callback;
-
         _userHandler.Callback(humanID);
 
         await botClient.AnswerCallbackQueryAsync(queryId, text: "callback recieved");
@@ -138,6 +140,7 @@ public class BotHandler
         }
     }
 
+    // Здесь необходимо получить текст об одежде
     private async Task HandleClothesAddAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         if (update.Message is not { } message)
@@ -149,11 +152,8 @@ public class BotHandler
         var chatId = message.Chat.Id;
         Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
-        var cur_city = messageText;
-        var handler = new WeatherHandler.WeatherHandler($"{cur_city}");
         try
         {
-
             Message sentMessage = await botClient.SendTextMessageAsync(
             chatId: chatId,
             text: "Ответ получен",

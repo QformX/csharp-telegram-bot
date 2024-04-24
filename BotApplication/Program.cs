@@ -7,8 +7,6 @@ namespace BotApplication
     {
         static void Main(string[] args)
         {
-            var sql = new SQLDatabase.SQLHandler();
-            sql.IniInitialize();
             var bot = new BotHandler.BotHandler();
             bot.Start();
             Console.ReadKey();

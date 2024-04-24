@@ -25,6 +25,8 @@ namespace WeatherHandler
 
             Weather? weather = JsonConvert.DeserializeObject<Weather>(json);
 
+            client.Dispose();
+
             if (weather != null )
             {
                 if (weather.location == null & weather.current == null)
