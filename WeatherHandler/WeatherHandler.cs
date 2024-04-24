@@ -25,7 +25,11 @@ namespace WeatherHandler
 
             Weather? weather = JsonConvert.DeserializeObject<Weather>(json);
 
-            return weather;
+            if ( weather != null )
+            {
+                return weather;
+            }
+            else return new Weather();
         }
     }
 }
