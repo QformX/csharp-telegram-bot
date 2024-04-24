@@ -71,24 +71,33 @@ public class BotHandler
         var chatId = message.Chat.Id;
         Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
-        var cur_city = messageText;
-        var handler = new WeatherHandler.WeatherHandler($"{cur_city}");
-        try
+        if (message.Text != "/start")
         {
-            var forecast = handler.GetForecast();
-            var forecastmessage = forecast.BuildMessage();
+            var cur_city = messageText;
+            var handler = new WeatherHandler.WeatherHandler($"{cur_city}");
+            try
+            {
+                var forecast = handler.GetForecast();
+                var forecastmessage = forecast.BuildMessage();
 
-            Message sentMessage = await botClient.SendPhotoAsync(
-            chatId: chatId,
-            photo: InputFile.FromUri("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg"),
-            caption: forecastmessage,
-            replyMarkup: inlineKeyboard,
-            cancellationToken: cancellationToken);
-        }
-        catch (Exception e)
+                Message sentMessage = await botClient.SendPhotoAsync(
+                chatId: chatId,
+                photo: InputFile.FromUri("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg"),
+                caption: forecastmessage,
+                replyMarkup: inlineKeyboard,
+                cancellationToken: cancellationToken);
+            }
+            catch (Exception e)
+            {
+                var exceptionHandler = new ExceptionHandler(botClient, chatId, cancellationToken, e);
+                Message sentMessage = await exceptionHandler.Handle();
+            }
+        } else
         {
-            var exceptionHandler = new ExceptionHandler(botClient, chatId, cancellationToken, e);
-            Message sentMessage = await exceptionHandler.Handle();
+            Message startMessage = await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: "Привет, помоги мне составить датасет :)\n Напиши мне город, в котором ты живёшь!",
+            cancellationToken: cancellationToken);
         }
     }
 
