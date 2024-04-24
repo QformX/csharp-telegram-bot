@@ -20,7 +20,7 @@ namespace WeatherHandler
             var clientHandler = new HttpClientHandler();
             var client = new HttpClient(clientHandler);
 
-            var responce_city = client.GetAsync($"http://api.weatherapi.com/v1/current.json?key={_api_key}&q={_city}");
+            var responce_city = client.GetAsync($"http://api.weatherapi.com/v1/current.json?key={_api_key}&q={_city}&lang=ru");
             var json = responce_city.Result.Content.ReadAsStringAsync().Result;
 
             Weather? weather = JsonConvert.DeserializeObject<Weather>(json);
