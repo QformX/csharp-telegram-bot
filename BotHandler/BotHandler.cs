@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -60,14 +62,6 @@ public class BotHandler
             }
         });
 
-        ReplyKeyboardMarkup replyKeyboardMarkup = new(new[]
-        {
-            new KeyboardButton[] { "Help me", "Call me ☎️" },
-        })
-        {
-            ResizeKeyboard = true
-        };
-
         var chatId = message.Chat.Id;
         Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
 
@@ -123,7 +117,8 @@ public class BotHandler
         }
         else
         {
-            await HandleClothesAddAsync(botClient, update, cancellationToken);
+            using CancellationTokenSource cts = new(3000);
+            await HandleClothesAddAsync(botClient, update, cts.Token);
             _callback = !_callback;
         }
     }
