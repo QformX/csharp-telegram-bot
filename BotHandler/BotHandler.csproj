@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TokenHandler\TokenHandler.csproj" />
     <ProjectReference Include="..\WeatherHandler\WeatherHandler.csproj" />
+    <ProjectReference Include="..\SQLDatabase\SQLDatabase.csproj" />
   </ItemGroup>
 
 </Project>
