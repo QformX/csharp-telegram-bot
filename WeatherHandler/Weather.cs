@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Diagnostics.Metrics;
-
-namespace WeatherHandler
+﻿namespace WeatherHandler
 {
     public record Weather
     {

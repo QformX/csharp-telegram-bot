@@ -1,6 +1,4 @@
-
-﻿using SQLDatabase;
-using System.Collections.Generic;
+using SQLDatabase;
 using WeatherHandler;
 
 namespace BotHandler
