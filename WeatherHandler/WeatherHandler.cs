@@ -10,7 +10,7 @@ namespace WeatherHandler
 
         public WeatherHandler(string city) 
         {
-            string path = "..\\..\\..\\..\\WeatherHandler\\encrypted.bin";
+            string path = "encryptedapi.bin";
             _api_key = new Tokenizer(path).Token();
             _city = city;
         }

@@ -16,7 +16,7 @@ namespace WeatherHandler
             condition = new EmptyCondition();
             wind_kph = 0;
             wind_dir = string.Empty;
-            feelslike = 0;
+            feelslike_c = 0;
         }
     }
 }

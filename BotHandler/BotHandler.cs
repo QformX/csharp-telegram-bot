@@ -18,7 +18,7 @@ public class BotHandler
     {
         sql.IniInitialize();
 
-        string path = "..\\..\\..\\..\\BotHandler\\encrypted.bin";
+        string path = "encryptedtg.bin";
         var token = new Tokenizer(path).Token();
         var botClient = new TelegramBotClient(token);
         using CancellationTokenSource cts = new();
