@@ -1,3 +1,4 @@
+
 ﻿using SQLDatabase;
 using System.Collections.Generic;
 using WeatherHandler;
@@ -21,11 +22,13 @@ namespace BotHandler
         public void Callback(long userId)
         {
 
+
             _users[userId]["callback"] = !(bool)_users[userId]["callback"];
         }
 
         public void Add(long userId)
         {
+
             _users.Add(userId, _keyValuePairs);
         }
 
@@ -50,12 +53,15 @@ namespace BotHandler
 
         public bool UserExist(long userId)
         {
+
             return _users.ContainsKey(userId);
         }
 
         public bool IsUserCallback(long userId)
         {
+
             return (bool)_users[userId]["callback"];
+
         }
     }
 }

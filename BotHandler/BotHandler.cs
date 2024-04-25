@@ -107,7 +107,6 @@ public class BotHandler
 
         var humanID = update.CallbackQuery.From.Id;
         Console.WriteLine(humanID);
-
         _userHandler.Callback(humanID);
 
         await botClient.AnswerCallbackQueryAsync(queryId, text: "callback recieved");
