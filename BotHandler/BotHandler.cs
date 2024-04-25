@@ -74,6 +74,7 @@ public class BotHandler
             {
                 var forecast = handler.GetForecast();
                 var forecastmessage = forecast.BuildMessage();
+                _userHandler.AddWeather(chatId, forecast);
 
                 Message sentMessage = await botClient.SendPhotoAsync(
                 chatId: chatId,
@@ -151,9 +152,12 @@ public class BotHandler
 
         var chatId = message.Chat.Id;
         Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
+        _userHandler.AddInputMessage(chatId, messageText);
 
         try
         {
+            var userData = _userHandler.GetUserData(chatId);
+            sql.Insert(userData);
             Message sentMessage = await botClient.SendTextMessageAsync(
             chatId: chatId,
             text: "Ответ получен",
