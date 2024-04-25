@@ -1,4 +1,7 @@
-﻿namespace BotApplication
+﻿using SQLDatabase;
+using Telegram.Bot.Types;
+
+namespace BotApplication
 {
     internal class Program
     {
