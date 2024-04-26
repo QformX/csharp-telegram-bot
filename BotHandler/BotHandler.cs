@@ -75,8 +75,11 @@ public class BotHandler
             {
                 var forecast = handler.GetForecast();
                 var forecastmessage = forecast.BuildMessage();
+                Bitmap _bitmap = new Bitmap(10, 10);
 
-                Bitmap _bitmap = new Bitmap("C:\\Users\\QForm\\Desktop\\csharp-telegram-bot\\forecast_day.png");
+                if (Convert.ToBoolean(forecast.current.is_day)) _bitmap = new Bitmap("C:\\Users\\QForm\\Desktop\\csharp-telegram-bot\\forecast_day.png");
+                else _bitmap = new Bitmap("C:\\Users\\QForm\\Desktop\\csharp-telegram-bot\\forecast_night.png");
+                
                 Graphics g = Graphics.FromImage(_bitmap);
                 int fontsize;
                 int height;
