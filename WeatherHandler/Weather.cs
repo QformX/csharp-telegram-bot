@@ -10,9 +10,8 @@ namespace WeatherHandler
 
         public string BuildMessage()
         {
-            var mes = $@"Локация: {location.name}, {location.country}
+            var mes = $@"Страна: {location.country}
 Дата последнего обновления: {current.last_updated}
-Текущая температура: {current.temp_c}
 Ощущается: {current.feelslike}
 Скорость ветра: {current.wind_kph}
 Направление ветра: {current.wind_dir}";
