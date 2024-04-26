@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Diagnostics.Metrics;
-
-namespace WeatherHandler
+﻿namespace WeatherHandler
 {
     public record Weather
     {
@@ -12,7 +9,7 @@ namespace WeatherHandler
         {
             var mes = $@"Страна: {location.country}
 Дата последнего обновления: {current.last_updated}
-Ощущается: {current.feelslike}
+Ощущается: {current.feelslike_c}
 Скорость ветра: {current.wind_kph}
 Направление ветра: {current.wind_dir}";
             return mes;

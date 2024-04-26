@@ -10,7 +10,7 @@ namespace WeatherHandler
 
         public WeatherHandler(string city) 
         {
-            string path = "..\\..\\..\\..\\WeatherHandler\\encrypted.bin";
+            string path = "encryptedapi.bin";
             _api_key = new Tokenizer(path).Token();
             _city = city;
         }
@@ -24,6 +24,8 @@ namespace WeatherHandler
             var json = responce_city.Result.Content.ReadAsStringAsync().Result;
 
             Weather? weather = JsonConvert.DeserializeObject<Weather>(json);
+
+            client.Dispose();
 
             if (weather != null )
             {

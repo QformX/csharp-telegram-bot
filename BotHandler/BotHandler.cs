@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Threading;
+﻿using SQLDatabase;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -16,11 +14,14 @@ namespace BotHandler;
 
 public class BotHandler
 {
-    private bool _callback = false;
+    private UserHandler _userHandler = new UserHandler();
+    private SQLHandler sql = new SQLHandler();
     public BotHandler() { }
     public void Start()
     {
-        string path = "..\\..\\..\\..\\BotHandler\\encrypted.bin";
+        sql.IniInitialize();
+
+        string path = "encryptedtg.bin";
         var token = new Tokenizer(path).Token();
         var botClient = new TelegramBotClient(token);
         using CancellationTokenSource cts = new();
@@ -48,6 +49,7 @@ public class BotHandler
         });
     }
 
+    // Здесь необходимо получить информацию о погоде
     private async Task HandleWeatherMessageAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         if (update.Message is not { } message)
@@ -138,7 +140,9 @@ public class BotHandler
         if (query.Id is not { } queryId)
             return;
 
-        _callback = !_callback;
+        var humanID = update.CallbackQuery.From.Id;
+        Console.WriteLine(humanID);
+        _userHandler.Callback(humanID);
 
         await botClient.AnswerCallbackQueryAsync(queryId, text: "callback recieved");
         Console.WriteLine("Callback");
@@ -146,7 +150,20 @@ public class BotHandler
 
     private async Task HandleMessageBridge(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if (!_callback)
+        if (update.Message is not { } message)
+            return;
+
+        if (message.Text is not { } messageText)
+            return;
+
+        var userId = message.Chat.Id;
+
+        if (!_userHandler.UserExist(userId))
+        {
+            _userHandler.Add(userId);
+        }
+
+        if (!_userHandler.IsUserCallback(userId))
         {
             await HandleWeatherMessageAsync(botClient, update, cancellationToken);
         }
@@ -154,10 +171,11 @@ public class BotHandler
         {
             using CancellationTokenSource cts = new(3000);
             await HandleClothesAddAsync(botClient, update, cts.Token);
-            _callback = !_callback;
+            _userHandler.Callback(userId);
         }
     }
 
+    // Здесь необходимо получить текст об одежде
     private async Task HandleClothesAddAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         if (update.Message is not { } message)
@@ -168,12 +186,12 @@ public class BotHandler
 
         var chatId = message.Chat.Id;
         Console.WriteLine($"Received a '{messageText}' message in chat {chatId}.");
+        _userHandler.AddInputMessage(chatId, messageText);
 
-        var cur_city = messageText;
-        var handler = new WeatherHandler.WeatherHandler($"{cur_city}");
         try
         {
-
+            var userData = _userHandler.GetUserData(chatId);
+            sql.Insert(userData);
             Message sentMessage = await botClient.SendTextMessageAsync(
             chatId: chatId,
             text: "Ответ получен",
