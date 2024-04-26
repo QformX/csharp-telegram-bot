@@ -6,6 +6,9 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TokenHandler;
+using WeatherHandler;
+using System.Drawing.Imaging;
+using System.Drawing;
 
 namespace BotHandler;
 
@@ -74,14 +77,46 @@ public class BotHandler
             {
                 var forecast = handler.GetForecast();
                 var forecastmessage = forecast.BuildMessage();
-                _userHandler.AddWeather(chatId, forecast);
+                Bitmap _bitmap = new Bitmap(10, 10);
 
-                Message sentMessage = await botClient.SendPhotoAsync(
-                chatId: chatId,
-                photo: InputFile.FromUri("https://github.com/TelegramBots/book/raw/master/src/docs/photo-ara.jpg"),
-                caption: forecastmessage,
-                replyMarkup: inlineKeyboard,
-                cancellationToken: cancellationToken);
+                if (Convert.ToBoolean(forecast.current.is_day)) _bitmap = new Bitmap("C:\\Users\\QForm\\Desktop\\csharp-telegram-bot\\forecast_day.png");
+                else _bitmap = new Bitmap("C:\\Users\\QForm\\Desktop\\csharp-telegram-bot\\forecast_night.png");
+                
+                Graphics g = Graphics.FromImage(_bitmap);
+                int fontsize;
+                int height;
+
+                if (forecast.location.name.Length < 10)
+                {
+                    fontsize = 120;
+                    height = 280;
+                }
+                else
+                {
+                    fontsize = 70;
+                    height = 330;
+                }
+
+                g.DrawString($"{forecast.location.name}", new Font("Century Gothic", fontsize), Brushes.White, new PointF(10, height));
+                g.DrawString($"{forecast.current.temp_c}", new Font("Myriad Pro", 200), Brushes.White, new PointF(5, 20));
+
+                Directory.CreateDirectory($"C:\\Users\\QForm\\Desktop\\csharp-telegram-bot\\temp_pics\\{chatId}");
+                _bitmap.Save($"C:\\Users\\QForm\\Desktop\\csharp-telegram-bot\\temp_pics\\{chatId}\\image.png", ImageFormat.Png);
+
+                g.Dispose();
+                _bitmap.Dispose();
+
+                using (FileStream fl = new FileStream($"C:\\Users\\QForm\\Desktop\\csharp-telegram-bot\\temp_pics\\{chatId}\\image.png", FileMode.Open))
+                {
+                    Message sentMessage = await botClient.SendPhotoAsync(
+                    chatId: chatId,
+                    photo: InputFile.FromStream(fl),
+                    caption: forecastmessage,
+                    replyMarkup: inlineKeyboard,
+                    cancellationToken: cancellationToken);
+                }
+
+                Directory.Delete($"C:\\Users\\QForm\\Desktop\\csharp-telegram-bot\\temp_pics\\{chatId}", true);
             }
             catch (Exception e)
             {
