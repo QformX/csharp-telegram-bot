@@ -10,11 +10,11 @@
         public string _wind_speed { get; set; }
         public string _wind_dir { get; set; }
         public string _clouth { get; set; }
-        public string _chat_id { get; set; }
+        public long _chat_id { get; set; }
 
-        public UserData(string city, string country, double temp_c, double feelslike, int is_day, double wind_speed, string wind_dir, string clouth, int chat_id)
+        public UserData(string city, string country, double temp_c, double feelslike, int is_day, double wind_speed, string wind_dir, string clouth, long chat_id)
         {
-            _chat_id = chat_id.ToString();
+            _chat_id = chat_id;
             _city = city;
             _country = country;
             _temp_c = temp_c.ToString();

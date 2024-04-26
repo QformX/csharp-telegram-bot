@@ -6,7 +6,6 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using TokenHandler;
-using WeatherHandler;
 using System.Drawing.Imaging;
 using System.Drawing;
 
@@ -77,6 +76,7 @@ public class BotHandler
             {
                 var forecast = handler.GetForecast();
                 var forecastmessage = forecast.BuildMessage();
+                _userHandler.AddWeather(chatId, forecast);
                 Bitmap _bitmap = new Bitmap(10, 10);
 
                 if (Convert.ToBoolean(forecast.current.is_day)) _bitmap = new Bitmap("C:\\Users\\QForm\\Desktop\\csharp-telegram-bot\\forecast_day.png");
@@ -141,8 +141,8 @@ public class BotHandler
             return;
 
         var humanID = update.CallbackQuery.From.Id;
-        Console.WriteLine(humanID);
-        _userHandler.Callback(humanID);
+        Console.WriteLine($"Текущий пользователь вызвал колбэк ON:{humanID}");
+        _userHandler.CallbackOn(humanID);
 
         await botClient.AnswerCallbackQueryAsync(queryId, text: "callback recieved");
         Console.WriteLine("Callback");
@@ -169,9 +169,9 @@ public class BotHandler
         }
         else
         {
-            using CancellationTokenSource cts = new(3000);
-            await HandleClothesAddAsync(botClient, update, cts.Token);
-            _userHandler.Callback(userId);
+            await HandleClothesAddAsync(botClient, update, cancellationToken);
+            Console.WriteLine($"Текущий пользователь вызвал колбэк ОФФ:{userId}");
+            _userHandler.CallbackOff(userId);
         }
     }
 

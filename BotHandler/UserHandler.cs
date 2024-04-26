@@ -5,60 +5,66 @@ namespace BotHandler
 {
     internal class UserHandler
     {
-        private Dictionary<string, object> _keyValuePairs;
-        private Dictionary<long, Dictionary<string, object>> _users;
+        public Dictionary<long, UserMessage> _userMessages;
+        public Dictionary<long, bool> _usersCallback;
 
         public UserHandler() 
         {
-            _keyValuePairs = new Dictionary<string, object>();
-            _keyValuePairs.Add("callback", false);
-            _keyValuePairs.Add("weather", new EmptyWeather());
-            _keyValuePairs.Add("message", String.Empty);
-            _users = new Dictionary<long, Dictionary<string, object>>();
+            _userMessages = new Dictionary<long, UserMessage>();
+            _usersCallback = new Dictionary<long, bool>();
         }
 
-        public void Callback(long userId)
+        public void CallbackOn(long userId)
         {
+            _usersCallback[userId] = true;
+        }
 
-
-            _users[userId]["callback"] = !(bool)_users[userId]["callback"];
+        public void CallbackOff(long userId)
+        {
+            _usersCallback[userId] = false;
         }
 
         public void Add(long userId)
         {
-
-            _users.Add(userId, _keyValuePairs);
+            _userMessages.Add(userId, new UserMessage(userId));
+            Console.WriteLine(_userMessages.Count);
+            _usersCallback.Add(userId, false);
         }
 
         public void AddWeather(long userId, Weather weather)
         {
-            _users[userId]["weather"] = weather;
+            var weatherData = new Dictionary<string, object>();
+            weatherData.Add("weather", weather);
+            _userMessages[userId].AddWeather(userId, weather);
 
         }
 
         public void AddInputMessage(long userId, string message)
         {
-            _users[userId]["message"] = message;
+            Console.WriteLine(message);
+            var weatherData = new Dictionary<string, object>();
+            weatherData.Add("weather", message);
+            _userMessages[userId].AddMessage(userId, message);
 
         }
 
         public UserData GetUserData(long userId)
         {
-            var message = (string)_users[userId]["message"];
-            var weather = (Weather)_users[userId]["weather"];
+            var message = (string)_userMessages[userId].GetMessage(userId);
+            var weather = (Weather)_userMessages[userId].GetWeather(userId);
             return new UserData(weather.location.name, weather.location.country, weather.current.temp_c, weather.current.feelslike_c, weather.current.is_day, weather.current.wind_kph, weather.current.wind_dir, message, (int)userId);
         }
 
         public bool UserExist(long userId)
         {
 
-            return _users.ContainsKey(userId);
+            return _usersCallback.ContainsKey(userId);
         }
 
         public bool IsUserCallback(long userId)
         {
 
-            return (bool)_users[userId]["callback"];
+            return _usersCallback[userId];
 
         }
     }
