@@ -175,7 +175,6 @@ public class BotHandler
         }
     }
 
-    // Здесь необходимо получить текст об одежде
     private async Task HandleClothesAddAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         if (update.Message is not { } message)
